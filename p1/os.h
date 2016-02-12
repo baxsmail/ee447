@@ -2,6 +2,9 @@
  * os.h
  */
 
+#ifndef _OS_H_
+#define _OS_H_
+
 //
 // some useful types
 //
@@ -22,7 +25,7 @@ typedef union allnum {
 //
 #define NUM_CORES	4
 #define NUM_THREADS	16
-#define MAX_SLEEP_INTERVAL	ONE_MSEC
+#define MAX_SLEEP_INTERVAL 500
 
 //
 // TIME values - caveats:
@@ -34,8 +37,8 @@ typedef union allnum {
 //    to do all that work)
 //
 #define	ONE_USEC	0x1
-#define	ONE_MSEC	(0x1 << 10)
-#define	ONE_SEC		(0x1 << 20)
+#define	ONE_MSEC	(0x01)
+#define	ONE_SEC		500
 
 #define	MICROSECONDS(u)	(u * ONE_USEC)
 #define	MILLISEC(m)		(m * ONE_MSEC)
@@ -89,4 +92,4 @@ extern unsigned int cpu_id ( void );
 extern void idle ( void );
 
 
-
+#endif

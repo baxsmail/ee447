@@ -4,6 +4,7 @@
 
 #include "os.h"
 #include "llist.h"
+#include "time.h"
 
 
 struct event {
@@ -15,8 +16,9 @@ struct event {
 };
 
 #define MAX_EVENTS	8
-int event_index = 0;
+#define EV_NULL ( struct event * ) (LL_NULL)
 struct event queue[ MAX_EVENTS ];
+void insert_timeoutq_event( struct event * ep);
 
 // list anchors -- important, but ignore them; they are never used directly
 llobject_t TQ;
@@ -26,6 +28,15 @@ struct event *timeoutq;
 struct event *freelist;
 
 unsigned int then_usec;
+
+unsigned int time_now = 0;
+unsigned int now_usec()
+{
+    unsigned int lo = GET32( 0x4000001c );
+    unsigned int hi = GET32( 0x40000020 );
+    unsigned int re = ( lo>>16 ) | ( hi<<16 );
+    return re;
+}
 
 //
 // sets up concept of local time
@@ -38,8 +49,7 @@ init_timeoutq()
 {
 	int i;
 
-	//TODO
-	//then_usec = now_usec();
+	then_usec = now_usec();
 
 	timeoutq = (struct event *)&TQ;
 	LL_INIT(timeoutq);
@@ -57,10 +67,16 @@ init_timeoutq()
 // account for however much time has elapsed since last update
 // return timeout or MAX
 //
-int
-bring_timeoutq_current()
+int bring_timeoutq_current()
 {
-	// your code goes here
+    int wait_time = MAX_SLEEP_INTERVAL;
+    struct event * ev = ( struct event * ) LL_TOP( timeoutq );
+    if( EV_NULL == ev )
+        return wait_time;
+
+    wait_time = ( wait_time > ( ev->timeout ) ) ? ( ev->timeout ) : wait_time ;
+
+	return wait_time;
 }
 
 
@@ -71,31 +87,49 @@ bring_timeoutq_current()
 void
 create_timeoutq_event(int timeout, int repeat, pfv_t function, unsigned int data)
 {
-	blink_led( GRN );
-	if( (int) function == 0 )
+    // Firstly, assert if we have available event
+    struct event *ep = ( struct event * ) LL_POP( freelist );
+    if( ep == EV_NULL )
+        return ;
+    // If so, fill the event
+    ep->timeout = timeout;
+    ep->repeat_interval = repeat;
+    ep->go = function;
+    ep->data = data;
+
+    insert_timeoutq_event( ep );
+/*
+	// Try to insert it according to timeout and timeoutq
+	struct event * it;
+    short is_pushed = 0;
+	
+    // Judge if we gonna insert it before a current event in timeque
+	LL_EACH(timeoutq,it,struct event )
 	{
-		while(1)
+		if( it != EV_NULL )
 		{
-		blink_led( RED );
+			if( ( it->timeout ) > ( ep->timeout ) )
+			{
+                it->timeout -= ep->timeout;
+                LL_L_INSERT( it, ep );
+                is_pushed = 1;
+				printf("left insert \n");
+			}
+            else
+            {
+                ep->timeout -= it->timeout;
+            }
 		}
 	}
-
-	// struct event * new_ev = (struct event *) malloc( sizeof( struct event ) );
-	// your code goes here
-	/*
-	queue[ event_index ].timeout = timeout;
-	queue[ event_index ].repeat_interval = repeat;
-	queue[ event_index ].go = function;
-	queue[ event_index ].data = data;
-
-	queue[ event_index ].go( data );
-	*/
-	while(1)
-	{
-		(* function )( GRN );
-	}
-	//struct event *ep = &queue[event_index++] ;
-	//LL_PUSH( timeoutq, ep );
+    
+    // If not insert it left to the header
+    if( is_pushed == 0 )
+    {
+        LL_APPEND(timeoutq, ep);
+        printf("tail insert\n");
+    }
+*/
+	
 
 }
 
@@ -109,8 +143,76 @@ create_timeoutq_event(int timeout, int repeat, pfv_t function, unsigned int data
 //
 // return whether or not you handled anything
 //
-int
-handle_timeoutq_event( )
+int handle_timeoutq_event( )
 {
-	// your code goes here
+    struct event * ev = (struct event * )LL_TOP( timeoutq );
+    if( EV_NULL == ev )
+        return 0;
+
+    unsigned int now = now_usec();
+    ev->timeout -= (int)( now - then_usec );
+    then_usec = now;
+
+    if( ev->timeout <= 0 )
+    {
+        if( ev->go == blink_led )
+        {
+            pfv_t foo = blink_led;
+            (*foo)( ev->data );
+        }
+        //ev->go( ev->data );
+        
+        LL_POP( timeoutq );
+        if( ev->repeat_interval != 0 )
+        {
+            ev->timeout = ev->repeat_interval ;
+            insert_timeoutq_event( ev );
+        }
+        else
+        {
+            LL_PUSH( freelist, ev );
+        }
+        return 1;
+    }
+
+
+
+    return 0;
 }
+//
+// insert the event to timeque
+//
+void insert_timeoutq_event( struct event * ep)
+{
+	// Try to insert it according to timeout and timeoutq
+	struct event * it;
+    short is_pushed = 0;
+
+    // Judge if we gonna insert it before a current event in timeque
+	LL_EACH(timeoutq,it,struct event )
+	{
+		if( it != EV_NULL )
+		{
+			if( ( it->timeout ) > ( ep->timeout ) )
+			{
+                it->timeout -= ep->timeout;
+                LL_L_INSERT( it, ep );
+                is_pushed = 1;
+                break;
+			}
+            else
+            {
+                ep->timeout -= it->timeout;
+            }
+		}
+	}
+    
+    // If not insert it left to the header
+    if( is_pushed == 0 )
+    {
+        LL_APPEND(timeoutq, ep);
+    }
+
+
+}
+

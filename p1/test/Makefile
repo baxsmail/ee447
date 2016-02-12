@@ -20,7 +20,7 @@ SRC := $(wildcard *.c ./src/*.c )
 OBJECTS := $(patsubst %.c,%.o,$(SRC))
 
 all: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o b.exe
+	$(CC) $(CFLAGS) $(OBJECTS) -o a.exe
 
 %: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
