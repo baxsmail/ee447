@@ -36,9 +36,9 @@ notmain()
     pfv_t faddr;
     faddr = &blink_led;
 
-	create_timeoutq_event( ONE_SEC, 2 * ONE_SEC, blink_led, RED );
-	create_timeoutq_event( 6 * ONE_SEC, 2 * ONE_SEC, blink_led, GRN );
-	create_timeoutq_event( 11 * ONE_SEC , 5 * ONE_SEC, blink_led, GRN | RED);
+	create_timeoutq_event( ONE_SEC, 5 * ONE_SEC, blink_led, RED );
+	create_timeoutq_event( 4 * ONE_SEC, 5 * ONE_SEC, blink_led, GRN );
+	create_timeoutq_event( 7 * ONE_SEC , 5 * ONE_SEC, blink_led, GRN | RED);
 
 	while (1) 
 	{
