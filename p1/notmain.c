@@ -29,8 +29,6 @@ notmain()
 	int timeout;
 
 	flash_led(1, RED|GRN, 4);
-    wait( 500 );
-	flash_led(1, RED|GRN, 4);
 
 	init_timeoutq();
     pfv_t faddr;
