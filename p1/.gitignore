@@ -4,3 +4,10 @@
 
 # temp o
 *.o
+
+# elf / hex / bin / list / img
+*.elf
+*.hex
+*.bin
+*.list
+*.img
