@@ -4,6 +4,7 @@
 
 #include "os.h"
 #include "llist.h"
+#include <stdio.h>
 
 
 struct event {
@@ -60,9 +61,26 @@ init_timeoutq()
 int
 bring_timeoutq_current()
 {
+	return 0;
 	// your code goes here
 }
 
+//
+// dump queue 
+//
+void dump_timeoutq()
+{
+	printf("=================\nenter function\n================\n");
+	struct event * it;
+	LL_EACH(timeoutq,it,struct event )
+	{
+		if( it != NULL )
+			printf("timeout %d\n",it->timeout);
+		else 
+			printf("NULL!\n");
+	}
+	printf("=================\nexit function\n================\n\n\n\n");
+}
 
 //
 // get a new event structure from the freelist,
@@ -71,31 +89,43 @@ bring_timeoutq_current()
 void
 create_timeoutq_event(int timeout, int repeat, pfv_t function, unsigned int data)
 {
-	blink_led( GRN );
-	if( (int) function == 0 )
-	{
-		while(1)
-		{
-		blink_led( RED );
-		}
-	}
-
 	// struct event * new_ev = (struct event *) malloc( sizeof( struct event ) );
 	// your code goes here
-	/*
 	queue[ event_index ].timeout = timeout;
 	queue[ event_index ].repeat_interval = repeat;
 	queue[ event_index ].go = function;
 	queue[ event_index ].data = data;
+	struct event *ep = &queue[event_index++] ;
+	event_index = event_index % MAX_EVENTS;
 
-	queue[ event_index ].go( data );
-	*/
-	while(1)
+	// try to insert it according to timeout and timeoutq
+	struct event * it;
+	struct event * tmp;
+	
+	if( LL_IS_EMPTY( timeoutq ) )
 	{
-		(* function )( GRN );
+		LL_PUSH( timeoutq, ep );
+		printf("pushing 1 \n");
 	}
-	//struct event *ep = &queue[event_index++] ;
-	//LL_PUSH( timeoutq, ep );
+
+	LL_EACH(timeoutq,it,struct event )
+	{
+		if( it != NULL )
+		{
+			tmp =  (struct event *) ( LLP(it)->next )  ;
+			if( ( it->timeout ) > timeout )
+			{
+				LL_PUSH( timeoutq, ep );
+				printf("left insert \n");
+			}
+			else if(  LLP(tmp) == LLP(timeoutq) )
+			{
+				printf("right insert\n");
+				timeout -= ( it->timeout );
+			}
+		}
+	}
+	
 
 }
 
@@ -112,5 +142,6 @@ create_timeoutq_event(int timeout, int repeat, pfv_t function, unsigned int data
 int
 handle_timeoutq_event( )
 {
+	return 0;
 	// your code goes here
 }
