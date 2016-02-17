@@ -40,7 +40,6 @@ $(TARGET) : $(OBJECTS) $(LINKAUTO)
 	$(ARMGNU)-objdump -D kernel7.elf > kernel7.list
 	$(ARMGNU)-objcopy kernel7.elf -O ihex kernel7.hex
 	$(ARMGNU)-objcopy kernel7.elf -O binary $(TARGET)
-	cp $(TARGET) $(SDTARGET)
 	rm -f $(LINKAUTO)
 
 
