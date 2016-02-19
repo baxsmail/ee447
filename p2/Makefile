@@ -4,7 +4,7 @@ KSIZE = 0x1000
 
 LINKAUTO = memmap.auto
 TARGET = kernel7.bin
-SDTARGET = ~/myshare/kernel7.img
+SDTARGET = ./kernel7.img
 DEPS = *.h
 
 COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding 

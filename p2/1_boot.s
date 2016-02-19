@@ -113,12 +113,13 @@ core0:
 
 irq:
     push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
+	bl cpu_id
+	bl clear_interrupt
     bl blink_red
     pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
     subs pc, lr, #4
 
 swi:
-    @bl disable_irq
     stmfd sp!,{r0-r12,lr}
     mov r1,sp
     mrs r0,spsr
@@ -128,6 +129,5 @@ swi:
     bl blink_green
     ldmfd sp!,{r0}
     msr spsr_cf,r0
-    @bl enable_irq
-    ldmfd sp!,{r0-r12,pc}
+    ldmfd sp!,{r0-r12,pc}^
 
