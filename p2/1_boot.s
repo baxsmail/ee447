@@ -27,16 +27,25 @@
 
 .globl _start
 _start:
-@ need to set up the jump table here
-@ need to set up the jump table here
-@ need to set up the jump table here
-@ need to set up the jump table here
-@ need to set up the jump table here
-@ need to set up the jump table here
-@ need to set up the jump table here
-@ need to set up the jump table here
-@ need to set up the jump table here
+ldr pc, res_handler@ need to set up the jump table here
+ldr pc, ud_handler@ need to set up the jump table here
+ldr pc, swi_handler@ need to set up the jump table here
+ldr pc, prefetch_handler@ need to set up the jump table here
+ldr pc, data_handler@ need to set up the jump table here
+ldr pc, unused_handler@ need to set up the jump table here
+ldr pc, irq_handler@ need to set up the jump table here
+ldr pc, fiq_handler@ need to set up the jump table here
+
+res_handler: .word reset
+ud_handler: .word hang
+swi_handler: .word swi
+prefetch_handler: .word hang
+data_handler: .word hang
+unused_handler: .word hang
+irq_handler: .word irq
+fiq_handler: .word hang
  
+
 reset:
 
 	mrc p15, 0, r0, c1, c0, 0 @ Read System Control Register
@@ -102,5 +111,23 @@ core0:
 	bl		kernel
 	b hang
 
+irq:
+    push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
+    bl blink_red
+    pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
+    subs pc, lr, #4
 
+swi:
+    @bl disable_irq
+    stmfd sp!,{r0-r12,lr}
+    mov r1,sp
+    mrs r0,spsr
+    stmfd sp!,{r0}
+    ldr r0, [lr,#-4]
+    bic r0,r0,#0xFF000000
+    bl blink_green
+    ldmfd sp!,{r0}
+    msr spsr_cf,r0
+    @bl enable_irq
+    ldmfd sp!,{r0-r12,pc}
 

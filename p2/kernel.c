@@ -37,13 +37,15 @@ kernel()
 	then = now_usec();
 	while (1) {
 		now = now_usec();
-		delta = usec_diff( now, then );
-		if (delta > ONE_MSEC) {
-//		if (delta > ((7 * ONE_SEC) + (500 * ONE_MSEC))) {
+        delta = usec_diff( now, then );
+		//if (delta > ONE_MSEC) {
+		if ( delta  > (ONE_SEC) ) {
+		//if (delta > ((7 * ONE_SEC) + (500 * ONE_MSEC))) {
 			then = now;
 //			flash_lonum(3);
 //			oldwait(20);
 			interrupt_core(1);
+//            clear_interrupt(1);
 //			while (1) continue;
 		}
 	}
