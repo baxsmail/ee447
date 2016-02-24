@@ -5,10 +5,11 @@ client1(void)
 {
 	unsigned int now, inmsg, outmsg, diff;
 
-	while (1) {
+	while (1) 
+    {
 		oldwait(50);
 		now = now_usec();
-		outmsg = now & 0x000FFFFF;
+		outmsg = now & 0x0FFFFFFF;
 
 		do {
 			unsigned int backoff = 1;
@@ -16,10 +17,17 @@ client1(void)
 				oldwait(backoff);
 				backoff *= 2;
 			}
-		} while (( inmsg = recv(USER_TIMEOUT) ) == NACK);
+            oldwait(50);
+            inmsg = recv( USER_TIMEOUT );
+		} while ( inmsg == NACK);
 
+
+		//diff = MSG_DATA(inmsg) - outmsg;
 		diff = MSG_DATA(inmsg) - outmsg;
-		if (diff == 1) {
+		if (diff == 1) 
+        //if( outmsg == MSG_DATA(inmsg) )
+        //if ( MSG_DATA(inmsg) == 0x02 )
+        {
 			blink_led(GRN);
 		}
 	}
@@ -28,24 +36,32 @@ client1(void)
 void
 client2(void)
 {
-	unsigned int now, inmsg, outmsg, diff;
+    unsigned int now, inmsg, outmsg, diff;
 
-	while (1) {
-		oldwait(50);
-		now = now_usec();
-		outmsg = now & 0x00FFFFFF;
+    while (1) 
+    {
+        oldwait(50);
+        now = now_usec();
+        outmsg = now & 0x0FFFFFFF;
 
-		do {
-			unsigned int backoff = 2;
-			while (!send(0, outmsg)) {
-				oldwait(backoff);
-				backoff *= 2;
-			}
-		} while (( inmsg = recv(USER_TIMEOUT) ) == NACK);
+        do {
+            unsigned int backoff = 1;
+            while (!send(0, outmsg)) {
+                oldwait(backoff);
+                backoff *= 2;
+            }
+            oldwait(50);
+            inmsg = recv( USER_TIMEOUT );
+        } while ( inmsg == NACK);
 
-		diff = MSG_DATA(inmsg) - outmsg;
-		if (diff == 1) {
-			blink_led(RED);
-		}
-	}
+
+        //diff = MSG_DATA(inmsg) - outmsg;
+        diff = MSG_DATA(inmsg) - outmsg;
+        if (diff == 1) 
+            //if( outmsg == MSG_DATA(inmsg) )
+            //if ( MSG_DATA(inmsg) == 0x02 )
+        {
+            blink_led(RED);
+        }
+    }
 }

@@ -1,15 +1,24 @@
 .globl _start
 _start:
 @
-@ set this table up appropriately
-@ set this table up appropriately
-@ set this table up appropriately
-@ set this table up appropriately
-@ set this table up appropriately
-@ set this table up appropriately
-@ set this table up appropriately
-@ set this table up appropriately
+ldr pc, res_handler@ need to set up the jump table here
+ldr pc, ud_handler@ need to set up the jump table here
+ldr pc, swi_handler@ need to set up the jump table here
+ldr pc, prefetch_handler@ need to set up the jump table here
+ldr pc, data_handler@ need to set up the jump table here
+ldr pc, unused_handler@ need to set up the jump table here
+ldr pc, irq_handler@ need to set up the jump table here
+ldr pc, fiq_handler@ need to set up the jump table here
 @
+
+res_handler: .word reset
+ud_handler: .word hang
+swi_handler: .word hang
+prefetch_handler: .word hang
+data_handler: .word hang
+unused_handler: .word hang
+irq_handler: .word hang
+fiq_handler: .word fiq
 
 .equ	USR_mode,	0x10
 .equ	FIQ_mode,	0x11
@@ -108,4 +117,10 @@ core0:
 	bl		enable_fiq
 	bl		kernel
 	b hang
+
+fiq:
+    push {r0,r1,r2,r3,r4,r5,r6,r7,lr}
+    bl incoming_kmsg
+    pop {r0,r1,r2,r3,r4,r5,r6,r7,lr}
+    subs pc, lr, #4
 

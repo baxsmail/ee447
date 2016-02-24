@@ -19,9 +19,11 @@ incoming_kmsg()
 	int id;
 
 	if (MSG_VALID(msg) && (id = MSG_SENDER(msg)) != 0) {
+        
 		msg = MSG_DATA(msg);
 		msg += 1;
-		send(id, msg);
+		send(id, MSG_DATA(msg) );
 	}
+    return;
 }
 
