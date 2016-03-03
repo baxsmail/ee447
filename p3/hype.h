@@ -25,7 +25,7 @@ typedef unsigned int (* pfu_t)();
 #define MAX_SLEEP_INTERVAL	USEC( 100 )
 #define MIN_SLEEP_INTERVAL	USEC( 4 )
 
-#define	USER_TIMEOUT	ONE_SEC
+#define	USER_TIMEOUT	20
 #define	KERN_TIMEOUT	0
 #define	MIN_TIMEOUT		USEC(2)
 

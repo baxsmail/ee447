@@ -2,6 +2,10 @@
 
 #define DEBUG 1
 
+int PID;
+
+
+
 void	threadX_blinker ( unsigned int color )
 {
 	unsigned int now, then, num;
@@ -38,3 +42,40 @@ void	entry_t0 ()
 	}
 }
 
+void scheduler_init()
+{
+    PID = 0;
+    entry_t0();
+}
+
+void c_hang()
+{
+    while(1);
+}
+
+int scheduler()
+{
+    if( PID == 0 )
+    {
+        PID = 2;
+        return 1;
+    }
+    if( PID == 1 )
+    {
+        PID = 2;
+        return 2;
+    }
+    if( PID == 2 )
+    {
+        PID = 1;
+        return 3;
+    }
+    return 4;
+}
+
+void blink_on_one()
+{
+    if( PID == 1 )
+        blink_led(RED);
+    return;
+}

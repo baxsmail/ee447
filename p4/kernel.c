@@ -38,7 +38,7 @@ kernel()
 	while (1) {
 		now = now_usec();
 		delta = usec_diff( now, then );
-		if (delta > ONE_MSEC) {
+		if (delta > ONE_SEC) {
 			then = now;
 			interrupt_core(1);
 		}

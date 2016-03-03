@@ -10,9 +10,11 @@
 #define	MSGBITS		0x0FFFFFFF
 
 #define CUR_BOX_NUM 0
+#define P( x ) while( x == 0 ); x = 0
+#define V( x ) x = 1
 #define IS_BOX_BUSY( x ) ( ( mailbox_state >> ( (x)*4 + CUR_BOX_NUM ) ) & 0x01 )
-#define SET_BOX_BUSY( x ) mailbox_state = mailbox_state | ( 0x01 << ( (x)*4 + CUR_BOX_NUM ) )
-#define CLR_BOX_BUSY( x ) mailbox_state = mailbox_state ^ ( 0x01 << ( (x)*4 + CUR_BOX_NUM ) )
+#define SET_BOX_BUSY( x ) P( mutex ) ; mailbox_state = mailbox_state | ( 0x01 << ( (x)*4 + CUR_BOX_NUM ) ); V( mutex )
+#define CLR_BOX_BUSY( x ) P( mutex ) ; mailbox_state = mailbox_state ^ ( 0x01 << ( (x)*4 + CUR_BOX_NUM ) ); V( mutex )
 
 /* set bits - write-only */
 #define INT_SET_BASE			0x40000080
@@ -20,6 +22,7 @@
 #define INT_CLR_BASE			0x400000C0
 
 static unsigned int mailbox_state = 0;
+static unsigned int mutex = 1;
 void 
 write_in_core( unsigned int core, unsigned int msg )
 {
@@ -67,17 +70,23 @@ send( unsigned int dest, unsigned int msg )
     s_msg = s_msg | msg;
     unsigned int ret_bool = 1;
 
+
     /* mail box stuff begin */
-    /*
     if( IS_BOX_BUSY( dest ) == 1 )
     {
         ret_bool = 0;
     }
     else
-        */
     {
         write_in_core( dest, s_msg );
-        //SET_BOX_BUSY( dest );
+        SET_BOX_BUSY( dest );
+        /*
+        if( IS_BOX_BUSY( dest ) == 1 )
+        {
+			blink_led(GRN);
+            oldwait(100);
+        }
+        */
     }
     /* mail box stuff end */
 
@@ -100,11 +109,13 @@ recv( unsigned int timeout )
     /* mail box stuff begin */
     do 
     {
-        //if( IS_BOX_BUSY ( cpu_id() ) )
+        //if( IS_BOX_BUSY ( cpu_id() ) == 1 )
+        {
             result = read_mailbox_in_core( CUR_BOX_NUM, cpu_id() ); 
             clear_interrupt( cpu_id() );
+            CLR_BOX_BUSY( cpu_id() );
             return result;
-            //CLR_BOX_BUSY( cpu_id() );
+        }
         //oldwait(1);
         //time_remain--;
     }while( time_remain > 0 );
@@ -124,8 +135,9 @@ krecv( )
 {
 	// your code goes here
     unsigned int ret = read_mailbox_in_core( CUR_BOX_NUM, cpu_id() ) ;
-    //CLR_BOX_BUSY( cpu_id() );
     clear_interrupt( 0 ); //cpu_id() );
+    if( IS_BOX_BUSY ( cpu_id() ) )
+        CLR_BOX_BUSY( cpu_id() );
     return ret;
 }
 
@@ -133,6 +145,7 @@ void _init_ipc()
 {
 	unsigned int i;
     mailbox_state = 0;
+    mutex = 1;
 
 	for (i=0; i<NUM_CORES; i++) {
 		// clear the mailbox
