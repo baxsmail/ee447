@@ -50,6 +50,7 @@ extern void create_timeoutq_event(int start_time, int repeat_interval, pfv_t gof
 // IPC primitives
 //
 
+extern void clear_interrupt( unsigned int core );
 extern unsigned int send( unsigned int dest, unsigned int msg );
 extern unsigned int recv( unsigned int timeout );
 

@@ -43,7 +43,7 @@ prefetch_handler: .word hang
 data_handler: .word hang
 unused_handler: .word hang
 irq_handler: .word irq
-fiq_handler: .word hang
+fiq_handler: .word fiq
  
 
 reset:
@@ -92,7 +92,6 @@ core1:
 	msr		cpsr_c, r2
 	mov		sp, # USTACK1
 	b hang
-	bl		userspace
 
 hang: b hang
 
@@ -109,6 +108,7 @@ core0:
 	msr		cpsr_c, r2
 	mov		sp, # KSTACK0
 
+	bl 		enable_fiq
 	bl		kernel
 	b hang
 
@@ -116,7 +116,12 @@ irq:
     push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 	bl cpu_id
 	bl clear_interrupt
-    bl blink_red
+	bl ukernel_status
     pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
     subs pc, lr, #4
 
+fiq:
+    push {r0,r1,r2,r3,r4,r5,r6,r7,lr}
+    bl incoming_kmsg
+    pop {r0,r1,r2,r3,r4,r5,r6,r7,lr}
+    subs pc, lr, #4
