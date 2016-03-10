@@ -12,13 +12,15 @@
 void
 clear_interrupt( unsigned int core )
 {
-	PUT32(INT_CLR_BASE + ((core & 0xf) << 4), 0xFFFFFFFF);
+	//PUT32(INT_CLR_BASE + ((core & 0x3) << 4) + 4, 0xFFFFFFFF);
+	PUT32(INT_CLR_BASE + ((core & 0x3) << 4) + 0, 0xFFFFFFFF);
 }
 
 void
 interrupt_core( unsigned int core )
 {
-	PUT32(INT_SET_BASE + ((core & 0xf) << 4), 0x1);
+    //PUT32(INT_SET_BASE + ((core & 0xf) << 4) + 4, 0x1);
+    PUT32(INT_SET_BASE + ((core & 0xf) << 4) + 0, 0x1);
 }
 
 unsigned int
@@ -31,6 +33,7 @@ read_mailbox_in_core( unsigned int num_box, unsigned int core )
 void 
 write_in_core( unsigned int core, unsigned int msg )
 {
+    oldwait(50);
 			blink_led( GRN );
 	PUT32(INT_SET_BASE + ((core & 0xf) << 4), msg);
 }

@@ -16,7 +16,7 @@ TARGET = kernel7.bin
 SDTARGET = ~/myshare/kernel7.img
 DEPS = *.h
 
-COPS = -Wall -O1 -nostdlib -nostartfiles -ffreestanding 
+COPS = -Wall -Wextra -O1 -nostdlib -nostartfiles -ffreestanding 
 
 all : $(TARGET)
 
