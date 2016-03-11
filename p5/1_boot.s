@@ -15,7 +15,6 @@
 .equ    KSTACK0   , 26624
 .equ    USTACK0   , 47104
 
-
 .equ	USR_mode,	0x10
 .equ	FIQ_mode,	0x11
 .equ	IRQ_mode,	0x12
@@ -120,8 +119,239 @@ irq:
     pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
     subs pc, lr, #4
 
+save_lr1_fiq: .word 0
+save_lr2_fiq: .word 0
+
 fiq:
+    str lr, save_lr1_fiq
     push {r0,r1,r2,r3,r4,r5,r6,r7,lr}
     bl incoming_kmsg
     pop {r0,r1,r2,r3,r4,r5,r6,r7,lr}
+    ldr lr,save_lr1_fiq
+    @ldr lr, = kernel
     subs pc, lr, #4
+
+SWITCH_HDL:
+    bl ukernel_scheduler
+    cmp r0,#0
+    bne ELSE1
+    b save_1_run_0
+
+ELSE1:
+    cmp r0,#1
+    bne ELSE2
+    b save_0_run_1
+
+ELSE2:
+    cmp r0,#2
+    bne ELSE3
+    b save_3_run_2
+
+ELSE3:
+    cmp r0,#3
+    bne ELSE4
+    b save_2_run_3
+
+ELSE4:
+    cmp r0,#5
+    bne ELSE5
+    b start_0
+
+ELSE5:
+    b start_3
+
+save_1_run_0:
+    str		r13, save_r13_1			
+	ldr		r13, =threadsave_1			@ load the IRQ stack pointer with address of TCB
+	add		r13, r13, #56				@ jump to middle of TCB for store up and store down
+	stmia	sp, {sp, lr}^				@ store the USR stack pointer & link register, upwards
+	push	{r0-r12, lr}				@ store USR regs 0-12 and IRQ link register (r14), downwards
+    ldr		r13, =threadsave_0			@ load the IRQ stack pointer with address of TCB
+	pop		{r0-r12, lr}				@ load USR regs 0-12 and IRQ link register (r14), upwards
+	ldmia	sp, {sp, lr}^				@ load the USR stack pointer & link register, upwards
+	nop									@ evidently it's a god idea to put a NOP after a LDMIA
+	ldr		r13, save_r13_0
+	sub	pc, lr, #4					@ return from exception
+
+save_0_run_1:
+    str		r13, save_r13_0			
+	ldr		r13, =threadsave_0			@ load the IRQ stack pointer with address of TCB
+	add		r13, r13, #56				@ jump to middle of TCB for store up and store down
+	stmia	sp, {sp, lr}^				@ store the USR stack pointer & link register, upwards
+	push	{r0-r12, lr}				@ store USR regs 0-12 and IRQ link register (r14), downwards
+    ldr		r13, =threadsave_1			@ load the IRQ stack pointer with address of TCB
+	pop		{r0-r12, lr}				@ load USR regs 0-12 and IRQ link register (r14), upwards
+	ldmia	sp, {sp, lr}^				@ load the USR stack pointer & link register, upwards
+	nop									@ evidently it's a god idea to put a NOP after a LDMIA
+	ldr		r13, save_r13_1
+	sub	pc, lr, #4					@ return from exception
+
+
+save_2_run_3:
+    str		r13, save_r13_2			
+	ldr		r13, =threadsave_2			@ load the IRQ stack pointer with address of TCB
+	add		r13, r13, #56				@ jump to middle of TCB for store up and store down
+	stmia	sp, {sp, lr}^				@ store the USR stack pointer & link register, upwards
+	push	{r0-r12, lr}				@ store USR regs 0-12 and IRQ link register (r14), downwards
+    ldr		r13, =threadsave_3			@ load the IRQ stack pointer with address of TCB
+	pop		{r0-r12, lr}				@ load USR regs 0-12 and IRQ link register (r14), upwards
+	ldmia	sp, {sp, lr}^				@ load the USR stack pointer & link register, upwards
+	nop									@ evidently it's a god idea to put a NOP after a LDMIA
+	ldr		r13, save_r13_3
+	sub	pc, lr, #4					@ return from exception
+
+
+save_3_run_2:
+    str		r13, save_r13_3			
+	ldr		r13, =threadsave_3			@ load the IRQ stack pointer with address of TCB
+	add		r13, r13, #56				@ jump to middle of TCB for store up and store down
+	stmia	sp, {sp, lr}^				@ store the USR stack pointer & link register, upwards
+	push	{r0-r12, lr}				@ store USR regs 0-12 and IRQ link register (r14), downwards
+    ldr		r13, =threadsave_2			@ load the IRQ stack pointer with address of TCB
+	pop		{r0-r12, lr}				@ load USR regs 0-12 and IRQ link register (r14), upwards
+	ldmia	sp, {sp, lr}^				@ load the USR stack pointer & link register, upwards
+	nop									@ evidently it's a god idea to put a NOP after a LDMIA
+	ldr		r13, save_r13_2
+	sub	pc, lr, #4					@ return from exception
+
+start_0:
+    str		r13, save_r13_1			
+	ldr		r13, =threadsave_1			@ load the IRQ stack pointer with address of TCB
+	add		r13, r13, #56				@ jump to middle of TCB for store up and store down
+	stmia	sp, {sp, lr}^				@ store the USR stack pointer & link register, upwards
+	push	{r0-r12, lr}				@ store USR regs 0-12 and IRQ link register (r14), downwards
+
+    ldr lr, = entry_t0
+    sub pc, lr, #0
+ 
+
+start_3:
+    str		r13, save_r13_2			
+	ldr		r13, =threadsave_2			@ load the IRQ stack pointer with address of TCB
+	add		r13, r13, #56				@ jump to middle of TCB for store up and store down
+	stmia	sp, {sp, lr}^				@ store the USR stack pointer & link register, upwards
+	push	{r0-r12, lr}				@ store USR regs 0-12 and IRQ link register (r14), downwards
+
+    ldr lr, = entry_t3
+    sub pc, lr, #0
+  
+			.word 0
+			.word 0
+threadsave_3:.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+
+			.word 0
+			.word 0
+threadsave_2:.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+
+
+			.word 0
+			.word 0
+threadsave_1:.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+
+			.word 0
+			.word 0
+threadsave_0:.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+			.word 0
+
+save_r13_0: .word 0
+save_r13_1: .word 0
+save_r13_2: .word 0
+save_r13_3: .word 0
+
+
+

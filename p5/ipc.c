@@ -12,26 +12,34 @@
 void
 clear_interrupt( unsigned int core )
 {
-	PUT32(INT_CLR_BASE + ((core & 0xf) << 4), 0xFFFFFFFF);
+    if( core == 0 )
+        PUT32(INT_CLR_BASE + ((core & 0xf) << 4), 0xFFFFFFFF);
+    else
+        PUT32(INT_CLR_BASE + ((core & 0xf) << 4) + 4, 0xFFFFFFFF);
 }
 
 void
 interrupt_core( unsigned int core )
 {
-	PUT32(INT_SET_BASE + ((core & 0xf) << 4), 0x1);
+	PUT32(INT_SET_BASE + ((core & 0xf) << 4) + 4, 0x1);
 }
 
 unsigned int
 read_mailbox_in_core( unsigned int num_box, unsigned int core )
 {
-	unsigned int result = 0;
-	return result;
+    unsigned result = 
+    GET32( INT_CLR_BASE + 
+         ( 
+            ( ( core & 0xf ) << 4 ) 
+            | 
+            ( ( num_box & 0xf ) << 2 ) 
+         ) );
+    return result;
 }
 
 void 
 write_in_core( unsigned int core, unsigned int msg )
 {
-			blink_led( GRN );
 	PUT32(INT_SET_BASE + ((core & 0xf) << 4), msg);
 }
 
@@ -95,8 +103,23 @@ krecv( )
 unsigned int
 recv( unsigned int timeout )
 {
-	unsigned int ret = 0;
-    return ret;
+	// your code goes here
+    unsigned int result = NACK;
+    unsigned int time_remain = timeout;
+    /* mail box stuff begin */
+    do 
+    {
+        //if( IS_BOX_BUSY ( cpu_id() ) == 1 )
+        {
+            result = read_mailbox_in_core( CUR_BOX_NUM, cpu_id() ); 
+            return result;
+        }
+        //oldwait(1);
+        //time_remain--;
+    }while( time_remain > 0 );
+    /* mail box stuff end */
+
+    return ( result );
 }
 
 void _init_ipc()
@@ -107,7 +130,7 @@ void _init_ipc()
 		// clear the mailbox
 	}
 
-	#define INT_IRQ	0x0F
+	#define INT_IRQ	0x0E
 	#define INT_FIQ	0xF0
 	#define INT_NONE 0
 

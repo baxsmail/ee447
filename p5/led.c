@@ -76,11 +76,11 @@ void _init_led()
 	flash_lonum(3);
 }
 
-void period_blink( unsigned int color )
+void period_blink( )
 {
-	while(1)
-	{
-		flash_led( 1, color, 1 );
-		oldwait(50);
-	}
+    int i; 
+    flash_led( 1, RED|GRN, 1 );
+    oldwait(30);
+    flash_led( 1, RED|GRN, 1 );
+    oldwait(30);
 }
