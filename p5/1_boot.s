@@ -74,6 +74,25 @@ reset:
 	@ CPU ID is not 0..3 - huh?
 	b hang
 
+core2:
+	mov 	r2, # No_Int | IRQ_mode
+	msr		cpsr_c, r2
+	mov		sp, # IRQSTACK2
+	mov 	r2, # No_Int | FIQ_mode
+	msr		cpsr_c, r2
+	mov		sp, # FIQSTACK2
+	mov 	r2, # No_Int | SVC_mode
+	msr		cpsr_c, r2
+	mov		sp, # KSTACK2
+
+	bl		enable_irq
+
+	mov 	r2, # USR_mode
+	msr		cpsr_c, r2
+	mov		sp, # USTACK2
+    bl ukernel_start
+	b hang
+
 core1:
 	mov 	r2, # No_Int | IRQ_mode
 	msr		cpsr_c, r2
@@ -90,6 +109,7 @@ core1:
 	mov 	r2, # USR_mode
 	msr		cpsr_c, r2
 	mov		sp, # USTACK1
+    bl ukernel_start
 	b hang
 
 hang: b hang
