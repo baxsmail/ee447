@@ -42,6 +42,7 @@ unsigned int *pagetable;
 //
 void	map( unsigned int v_index, unsigned int pa_index, int io_addr )
 {
+    // I don't find io_addr useful for any configuration lol
     unsigned int entry = 0;
     entry |= pa_index << 20 ;
     // a section
@@ -61,7 +62,7 @@ void	map( unsigned int v_index, unsigned int pa_index, int io_addr )
 void	enable_vm()
 {
     map(0x000,0x000,0x000);
-    //map(0x3f2,0x3f2,0x000);
+    map(0x3f2,0x3f2,0x000);
     map(0x002,0x3f2,0x000);
     map(0x400,0x400,0x000);
     /*
@@ -72,18 +73,22 @@ void	enable_vm()
     */
 
     // writeDACR
-    // set domain 0 to manager (lol)
-    asm volatile ("mcr p15, 0, %0, c3, c0, 0" :: "r" (3));
+    // set domain 0 to manager instead of client (lol)
+    writeDACR( 3 );
+    //asm volatile ("mcr p15, 0, %0, c3, c0, 0" :: "r" (3));
 
     // writeTTBCR
     // always use TTBR0
-    asm volatile ("mcr p15, 0, %0, c2, c0, 2" :: "r" (0));
+    writeTTBCR( 0 );
+    //asm volatile ("mcr p15, 0, %0, c2, c0, 2" :: "r" (0));
 
     // set TTBR0 (page table walk non-cacheable, shareable memory)
-    asm volatile ("mcr p15, 0, %0, c2, c0, 0" :: "r" (2 | PT_START ));
+    writeTTBR0( 2 | PT_START );
+    //asm volatile ("mcr p15, 0, %0, c2, c0, 0" :: "r" (2 | PT_START ));
 
     // enable MMU
-    asm volatile ("mcr p15,0,%0,c1,c0,0" :: "r" (1) : "memory");
+    writeSCTLR( 1 );
+    //asm volatile ("mcr p15,0,%0,c1,c0,0" :: "r" (1) : "memory");
 }
 
 void map_reset( unsigned int v )
