@@ -13,7 +13,7 @@ LINK = memmap.auto
 INIT = initf.auto
 STACKS = stacks.auto
 TARGET = kernel7.bin
-SDTARGET = /Volumes/boot/kernel7.img
+SDTARGET = ~/myshare/kernel7.img
 DEPS = *.h
 
 COPS = -Wall -O2 -nostdlib -nostartfiles -ffreestanding 
