@@ -13,8 +13,8 @@ void	two_io_locations ( )
 		if ((now - then) > MSEC(500)) {
 			then = now;
 
-			flash_led(1, RED, 4);
-			flash_led_diffio(1, GRN, 4);
+			flash_led(1, GRN, 4);
+			flash_led_diffio(1, RED, 4);
 
 		}
 	}

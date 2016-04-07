@@ -50,9 +50,9 @@ void	map( unsigned int v_index, unsigned int pa_index, int io_addr )
     // enable r/w permission
     entry |= 3 << 10;
     // writeback
-    entry |= 1 << 3;
+    // entry |= 1 << 3;
     // cacheable
-    entry |= 1 << 4;
+    // entry |= 1 << 4;
     pagetable[ v_index ] = entry ;
 
 }
@@ -65,12 +65,6 @@ void	enable_vm()
     map(0x3f2,0x3f2,0x000);
     map(0x002,0x3f2,0x000);
     map(0x400,0x400,0x000);
-    /*
-    unsigned auxctrl;
-    asm volatile ("mrc p15, 0, %0, c1, c0,  1" : "=r" (auxctrl));
-    auxctrl |= 1 << 6;
-    asm volatile ("mcr p15, 0, %0, c1, c0,  1" :: "r" (auxctrl));
-    */
 
     // writeDACR
     // set domain 0 to manager instead of client (lol)
@@ -87,8 +81,10 @@ void	enable_vm()
     //asm volatile ("mcr p15, 0, %0, c2, c0, 0" :: "r" (2 | PT_START ));
 
     // enable MMU
-    writeSCTLR( 1 );
-    //asm volatile ("mcr p15,0,%0,c1,c0,0" :: "r" (1) : "memory");
+	unsigned int temp;
+	temp = readSCTLR();
+	temp |= 0x01;
+    writeSCTLR( temp );
 }
 
 void map_reset( unsigned int v )
