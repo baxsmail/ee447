@@ -1,0 +1,60 @@
+#include "user_api.h"
+#include "syscall.h"
+
+int read (unsigned int device_type, int id, char *buf, int len)
+{
+    int rc = -1;
+    switch( device_type )
+    {
+        case DEVICE_SDCARD:
+        case DEVICE_CLOCKS:
+            rc = syscall( DEVCALL_READ, device_type, buf, len );
+            break;
+        case DEVICE_NULL:
+            rc = 0;
+            break;
+        default:
+            Uerror("Invalid Read"\n);
+            break;
+    }
+    return rc;
+}
+
+int write (unsigned int device type, int id, char *buf, int len)
+{
+    int rc = 0;
+    switch( device_type )
+    {
+        case DEVICE_NULL:
+            break;
+        default:
+            rc = syscall( DEVCALL_READ, device_type, buf, len );
+            break;
+    }
+    return rc;
+}
+
+int new_process (char *executable)
+{
+    int rc = 0;
+    /* TODO : How could we passing the parameters */
+    rc = syscall( DEVCALL_NULL, DEVICE_NULL, executable, /* nil */ 0 );
+    return rc;
+}
+
+int new_thread (pfv_t entrypoint)
+{
+    int rc = 0;
+    /* TODO : How to divide new_thread from new_process by params */
+    return rc;
+}
+
+void yield()
+{
+    /* TODO : It is not explicit at all, do we need a queue to manage the process ? Which one next ? */
+}
+
+void Uerror( char* str)
+{
+    /* print to screen */
+}
