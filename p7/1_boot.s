@@ -131,6 +131,7 @@ irq_nop:
 
 	mov r0, #1
 	bl	clear_interrupt
+    bl enable_vm
 
 	pop		{r0, lr}				@ restore regs
 	subs	pc, lr, #4				@ return from exception
