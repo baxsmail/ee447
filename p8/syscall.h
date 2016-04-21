@@ -1,11 +1,13 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 
-typedef int (*Trap_Handler) (char * buf, int T_size, int id, int Fctn_Num );
+typedef int (*Trap_Handler) (char * buf, int T_size, int id);
 
 int syscall( int function, int device_ID, char *args, int argsize );
 
-const Trap_Handler Handler_Table[] ;
+int syscall_helper( char * buf, int bufsize, int device_ID, int function );
+
+const Trap_Handler Handler_Table[5] ;
 
 enum device_types {
     DEVICE_NULL,

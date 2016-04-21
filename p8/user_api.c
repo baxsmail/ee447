@@ -14,13 +14,13 @@ int read (unsigned int device_type, int id, char *buf, int len)
             rc = 0;
             break;
         default:
-            Uerror("Invalid Read"\n);
+            Uerror("Invalid Read\n");
             break;
     }
     return rc;
 }
 
-int write (unsigned int device type, int id, char *buf, int len)
+int write (unsigned int device_type, int id, char *buf, int len)
 {
     int rc = 0;
     switch( device_type )
@@ -45,13 +45,13 @@ int new_process (char *executable)
 int new_thread (pfv_t entrypoint)
 {
     int rc = 0;
-    /* TODO : How to divide new_thread from new_process by params */
+    rc = syscall( SYSCALL_NEWTHREAD, DEVICE_NULL, (int) entrypoint, /* nil */ 0 );
     return rc;
 }
 
 void yield()
 {
-    /* TODO : It is not explicit at all, do we need a queue to manage the process ? Which one next ? */
+    /* no idead what is this about */
 }
 
 void Uerror( char* str)

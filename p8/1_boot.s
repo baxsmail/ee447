@@ -42,7 +42,7 @@ swi_handler: .word swi
 prefetch_handler: .word hang
 data_handler: .word hang
 unused_handler: .word hang
-irq_handler: .word irq
+irq_handler: .word hang
 fiq_handler: .word hang
  
 
@@ -109,25 +109,7 @@ core0:
 	msr		cpsr_c, r2
 	mov		sp, # KSTACK0
 
-	bl		kernel
 	b hang
 
-irq:
-    push {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
-	bl cpu_id
-	bl clear_interrupt
-    bl blink_red
-    pop {r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
-    subs pc, lr, #4
 
 swi:
-    stmfd sp!,{r0-r12,lr}
-    mov r1,sp
-    mrs r0,spsr
-    stmfd sp!,{r0}
-    ldr r0, [lr,#-4]
-    bic r0,r0,#0xFF000000
-    bl blink_green
-    ldmfd sp!,{r0}
-    msr spsr_cf,r0
-    ldmfd sp!,{r0-r12,pc}^

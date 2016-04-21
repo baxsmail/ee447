@@ -3,39 +3,48 @@
 
 int syscall( int function, int device_ID, char *args, int argsize )
 {
-    /* TODO : some assembly to re-allign params */
+    /* re-allign params */
+    int retNum = syscall_helper( args, argsize, device_ID, function );
 
     /* call some print to print Hello World */
-    return /* the thing from r0 */ 0;
+    /* the thing from r0 */ 
+    return retNum;
+}
+
+int syscall_helper( char * buf, int bufsize, int device_ID, int function )
+{
+    asm("svc #0");
 }
 
 /* TODO : Within swi_handler, b [Handler_Table,+#4]
  */
 
 int Sys_Null(char *buf, int bufsize, int device_ID) {
+
     return 0;
 }
 
 int Sys_Read(char *buf, int bufsize, int device_ID) {
-    int rc = 0;
+    int retNum = 0;
     switch( device_ID )
     {
         case DEVICE_SDCARD:
         /* TODO
-            rc = GET32();
+            retNum = GET32();
             */
             break;
         case DEVICE_CLOCKS:
         /* TODO
-            rc = GET32();
+            retNum = GET32();
             */
             break;
+        default:
+            break;
     }
-    return rc;
+    return retNum;
 }
 
 int Sys_Write(char *buf, int bufsize, int device_ID) {
-    int rc = 0;
     switch( device_ID )
     {
         case DEVICE_LED:
