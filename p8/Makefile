@@ -59,13 +59,14 @@ cp : clean $(TARGET)
 .s.o : 
 	$(ARMGNU)-as $< -o $@
 
+
 .c.o : $(DEPS)
 	$(ARMGNU)-gcc $(COPS) -c $< -o $@
 
 OBJECTS := $(patsubst %.s,%.o,$(wildcard *.s)) $(patsubst %.c,%.o,$(wildcard *.c))
 
-$(TARGET) : $(STACKS) $(INIT) $(OBJECTS) $(LINK)
-	$(ARMGNU)-ld $(OBJECTS) -T $(LINK) -o kernel7.elf
+$(TARGET) : $(STACKS) $(INIT) $(OBJECTS) 
+	$(ARMGNU)-ld $(OBJECTS) -T kernel.ld -o kernel7.elf
 	$(ARMGNU)-objdump -D kernel7.elf > kernel7.list
 	$(ARMGNU)-objcopy kernel7.elf -O ihex kernel7.hex
 	$(ARMGNU)-objcopy kernel7.elf -O binary $(TARGET)

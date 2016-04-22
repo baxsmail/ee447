@@ -1,13 +1,14 @@
 #ifndef SYSCALL_H
 #define SYSCALL_H
 
-typedef int (*Trap_Handler) (char * buf, int T_size, int id);
+
+// typedef int (*Trap_Handler) (char * buf, int T_size, int id);
 
 int syscall( int function, int device_ID, char *args, int argsize );
 
 int syscall_helper( char * buf, int bufsize, int device_ID, int function );
 
-const Trap_Handler Handler_Table[5] ;
+// const Trap_Handler Handler_Table[5] ;
 
 enum device_types {
     DEVICE_NULL,
@@ -35,4 +36,10 @@ enum syscalls_nondev {
     SYSCALL_MAX
 };
 
+int Sys_Null(void);
+int Sys_Read(char *buf, int bufsize, int device_ID) ;
+int Sys_Write(char *buf, int bufsize, int device_ID) ;
+int Sys_NewProc(char *buf, int bufsize) ;
+int Sys_NewThread(char *buf, int bufsize) ;
+int Sys_Error();
 #endif

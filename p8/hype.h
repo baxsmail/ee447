@@ -2,9 +2,13 @@
  * hype.h
  */
 
+#ifndef HYPE_H
+#define HYPE_H
+
 typedef void (* pfv_t)();
 typedef int (* pfi_t)();
 typedef unsigned int (* pfu_t)();
+
 
 #define NULL 0
 
@@ -29,6 +33,8 @@ typedef unsigned int (* pfu_t)();
 #define	KERN_TIMEOUT	0
 #define	MIN_TIMEOUT		USEC(2)
 
+extern void init_video_code(void );
+        //print_text(start_kernel);
 
 //
 // time/timeoutq routines
@@ -77,6 +83,7 @@ extern void flash_led_diffio ( unsigned int, unsigned int, unsigned int );
 //
 // utilities/etc (assembly-code routines)
 //
+extern int syscall_helper( char * buf, int bufsize, int device_ID, int function );
 extern void PUT32 ( unsigned int, unsigned int );
 extern unsigned int GET32 ( unsigned int );
 extern unsigned int GETPC ( void );
@@ -102,4 +109,16 @@ extern unsigned int readDACR();
 extern void writeDACR(unsigned int);
 extern unsigned int readSCTLR();
 extern void writeSCTLR(unsigned int);
+//
+// print stuff
+//
+extern void init_video_code();
+extern void add_new_line();
+extern void printhex (unsigned int );
+extern void printdec (unsigned int );
+extern void print_text (unsigned char* );
+extern void print_debug (unsigned char* , unsigned int);
+extern void print_debug_hex(unsigned char text[], unsigned int num);
+void print_addr_val(unsigned int addr, unsigned int val) ;
 
+#endif

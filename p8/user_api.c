@@ -28,7 +28,7 @@ int write (unsigned int device_type, int id, char *buf, int len)
         case DEVICE_NULL:
             break;
         default:
-            rc = syscall( DEVCALL_READ, device_type, buf, len );
+            rc = syscall( DEVCALL_WRITE, device_type, buf, len );
             break;
     }
     return rc;
@@ -37,8 +37,7 @@ int write (unsigned int device_type, int id, char *buf, int len)
 int new_process (char *executable)
 {
     int rc = 0;
-    /* TODO : How could we passing the parameters */
-    rc = syscall( DEVCALL_NULL, DEVICE_NULL, executable, /* nil */ 0 );
+    rc = syscall( SYSCALL_NEWPROC, DEVICE_NULL, executable, /* nil */ 0 );
     return rc;
 }
 
